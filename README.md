@@ -2,7 +2,7 @@
 
 Sistema web para gestão do acervo micológico da coleção de fungos da UFMA: cadastro de isolados, importação de planilhas Excel, relatórios e controle de usuários.
 
-> **Status atual: backend real.** Acervo, Importação, Login/Cadastro e Usuários já gravam em banco de dados (SQLite) de verdade. Autenticação, cadastro público e controle de permissões por perfil (Administrador/Curador/Consulta) estão implementados e protegendo as rotas.
+> **Status atual: backend real.** Acervo, Importação, Login/Cadastro e Usuários já gravam em banco de dados (PostgreSQL) de verdade. Autenticação, cadastro público e controle de permissões por perfil (Administrador/Curador/Consulta) estão implementados e protegendo as rotas.
 
 ---
 
@@ -11,7 +11,7 @@ Sistema web para gestão do acervo micológico da coleção de fungos da UFMA: c
 | Camada | Tecnologia |
 |---|---|
 | Backend | PHP 8.2+, Laravel 12 |
-| Banco de dados | SQLite (arquivo `database/database.sqlite`) |
+| Banco de dados | PostgreSQL (local via Homebrew: `postgresql@14`) |
 | Importação de Excel | `maatwebsite/excel` (PhpSpreadsheet) |
 | Views | Blade (templates do Laravel) |
 | Estilo | Tailwind CSS 4 |
@@ -40,19 +40,35 @@ npm install
 cp -n .env.example .env
 php artisan key:generate
 
-# 5. Rode as migrations (cria as tabelas no SQLite)
+# 5. Suba um PostgreSQL local (se ainda não tiver) e crie o banco do projeto
+brew install postgresql@14
+brew services start postgresql@14
+psql -d postgres -c "CREATE ROLE cfufma WITH LOGIN PASSWORD 'sua-senha-local';"
+psql -d postgres -c "CREATE DATABASE cfufma_acervo OWNER cfufma;"
+
+# 6. Configure a conexão no .env
+#    DB_CONNECTION=pgsql
+#    DB_HOST=127.0.0.1
+#    DB_PORT=5432
+#    DB_DATABASE=cfufma_acervo
+#    DB_USERNAME=cfufma
+#    DB_PASSWORD=sua-senha-local
+
+# 7. Rode as migrations (cria as tabelas no Postgres)
 php artisan migrate
 
-# 6. Suba o servidor de assets (Tailwind/JS) em um terminal
+# 8. Suba o servidor de assets (Tailwind/JS) em um terminal
 npm run dev
 
-# 7. Em outro terminal, suba o servidor do Laravel
+# 9. Em outro terminal, suba o servidor do Laravel
 php artisan serve
 ```
 
 Depois abra **http://127.0.0.1:8000** no navegador — ele redireciona automaticamente para `/dashboard`.
 
-Se preferir gerar os assets uma vez só (sem deixar o `npm run dev` rodando), use `npm run build` no lugar do passo 6.
+Se preferir gerar os assets uma vez só (sem deixar o `npm run dev` rodando), use `npm run build` no lugar do passo 8.
+
+Se preferir usar o SQLite antigo (mais simples, sem precisar instalar Postgres), basta trocar `DB_CONNECTION=sqlite` no `.env` e apontar `DB_DATABASE` para o caminho do arquivo `database/database.sqlite` — os dois drivers continuam suportados, o projeto só passou a rodar em Postgres por padrão.
 
 ### Login e cadastro
 
@@ -121,7 +137,7 @@ A coluna **Foto** deve conter um link direto para a imagem (ex.: `https://.../fo
 
 ## O que foi feito
 
-- **Banco de dados real (SQLite)**: tabelas `isolados` (código, gênero, espécie, origem, meio de cultivo, data, conservação, local, armazenamento, autor), `importacoes` (histórico de uploads, com contadores e colunas ausentes/linhas inválidas em JSON) e `users` (nome, e-mail, senha com hash, perfil, status ativo/inativo, último acesso).
+- **Banco de dados real (PostgreSQL)**: tabelas `isolados` (código, gênero, espécie, origem, meio de cultivo, data, conservação, local, armazenamento, autor), `importacoes` (histórico de uploads, com contadores e colunas ausentes/linhas inválidas em JSON) e `users` (nome, e-mail, senha com hash, perfil, status ativo/inativo, último acesso).
 - **Autenticação real**: login/logout contra a tabela `users` (`Auth::attempt`, sessão, senha com hash), cadastro público em `/registrar`, todas as rotas internas protegidas por middleware `auth`.
 - **Perfis e permissões**: perfis Administrador/Curador/Consulta com middleware `perfil` bloqueando rotas por HTTP 403, e a interface escondendo links que o usuário logado não pode acessar. Só Administrador cria/edita/ativa/desativa outros usuários ou muda o perfil de alguém.
 - **Importação real de Excel**: `app/Services/IsoladoImportService.php` lê o arquivo enviado com `maatwebsite/excel`, casa os cabeçalhos da planilha com os campos do sistema (tolerando variações de acento/nome), valida campos obrigatórios, detecta duplicidade por código (no banco e dentro do próprio arquivo) e grava os isolados válidos vinculados ao registro da importação.
@@ -144,8 +160,14 @@ A coluna **Foto** deve conter um link direto para a imagem (ex.: `https://.../fo
 - **Permissões por perfil de verdade**: a tabela em Configurações → Usuários agora persiste no banco (`perfil_permissoes`) e é aplicada de verdade nas rotas de Acervo, Importação e Relatórios via middleware `modulo`. O perfil Administrador tem acesso total fixo (não editável pela interface), para não travar o próprio acesso à tela de permissões.
 - Removido o badge "Dados mockados" do painel interno — resquício da fase de protótipo, os dados já são reais.
 
+## O que foi feito (migração para PostgreSQL)
+
+- O projeto passou a rodar em **PostgreSQL** por padrão (antes era SQLite). Localmente, usa um servidor PostgreSQL 14 via Homebrew, com um banco (`cfufma_acervo`) e um usuário (`cfufma`) dedicados só a este projeto — não interfere em outros bancos/servidores que já existam na máquina.
+- Todos os dados reais que já existiam no SQLite (usuários, isolados, importações) foram migrados para o Postgres, preservando os IDs originais e ajustando as sequences.
+- O SQLite continua funcionando como alternativa (só trocar `DB_CONNECTION` no `.env`) — nenhum código depende de um banco específico, é tudo Eloquent/Query Builder padrão do Laravel.
+
 ## O que falta
 
 - **Envio de e-mail real**: hoje o link de recuperação de senha só é gravado em `storage/logs/laravel.log`. Precisa de um provedor SMTP configurado no `.env` (Gmail, SendGrid, institucional da UFMA, etc.) para funcionar em produção.
 - Sem limite de tentativas de login (rate limiting) — não há proteção contra força bruta na tela `/login`.
-- Deploy em um banco de produção (PostgreSQL), se for o caso — hoje roda em SQLite local.
+- Deploy em um servidor de produção de verdade (hoje o Postgres roda localmente na sua máquina, via Homebrew) — falta hospedar o banco e a aplicação em algum provedor (ex.: Railway, Render, VPS da UFMA).
