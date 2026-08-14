@@ -93,7 +93,9 @@ O middleware `perfil` (`app/Http/Middleware/EnsurePerfil.php`) bloqueia com HTTP
 4. Clique em **Confirmar importação** — os registros válidos são gravados no banco. Você é levado para a página de detalhes da importação com o resultado real.
 5. Os registros aparecem imediatamente em **Acervo**, no **Dashboard** e nos **Relatórios**.
 
-**Cabeçalhos reconhecidos** (com tolerância a acentos/maiúsculas e pequenas variações): Código, Gênero, Espécie, Origem, Meio de cultivo, Data, Conservação, Local, Armazenamento, Autor. Uma linha só é rejeitada se faltar **Código**, **Gênero** ou **Espécie**; os demais campos são opcionais. Um **Código** que já existe no banco (ou repetido dentro do próprio arquivo) é tratado como duplicidade e não é importado de novo.
+**Cabeçalhos reconhecidos** (com tolerância a acentos/maiúsculas e pequenas variações): Código, Gênero, Espécie, Origem, Meio de cultivo, Data, Conservação, Local, Armazenamento, Autor, Descrição, Foto (link). Uma linha só é rejeitada se faltar **Código**, **Gênero** ou **Espécie**; os demais campos são opcionais. Um **Código** que já existe no banco (ou repetido dentro do próprio arquivo) é tratado como duplicidade e não é importado de novo.
+
+A coluna **Foto** deve conter um link direto para a imagem (ex.: `https://.../foto.jpg`); o sistema baixa e salva a foto durante a importação. Se o link estiver quebrado, não apontar para uma imagem válida, ou a URL não usar `http(s)`, o isolado é importado normalmente, só que sem foto — o link inválido nunca interrompe a importação da linha.
 
 ---
 
@@ -128,8 +130,22 @@ O middleware `perfil` (`app/Http/Middleware/EnsurePerfil.php`) bloqueia com HTTP
 - **Design system em Blade**: componentes reutilizáveis (`x-button`, `x-card`, `x-input`, `x-select`, `x-modal`, `x-alert`, `x-badge`, `x-pagination`, `x-empty-state`, `x-toast`) usados em todas as telas, com a paleta `#FFFFFF #EAF8F0 #3FAF75 #2F9A66 #6B7280 #1F2937 #F8FAF8`.
 - **Layout**: sidebar fixa no desktop / off-canvas no mobile, navbar com menu do usuário, barra de carregamento e toasts globais.
 
+## O que foi feito (sessão de imagem/galeria pública)
+
+- **Foto e descrição por isolado**: upload de imagem (`storage/app/public/isolados`) e campo de descrição em cada registro, exibidos no cadastro/edição/detalhe do Acervo.
+- **Galeria pública** (`/galeria`, sem login): grade de espécies com foto/nome/descrição, busca, filtro por gênero e por "com/sem foto", página de detalhe própria. `/` leva quem não está logado direto pra lá.
+- **Exportação de relatórios**: os botões "Exportar Excel" e "Exportar PDF" em `/relatorios` agora funcionam de verdade (`maatwebsite/excel` e `barryvdh/laravel-dompdf`), respeitando os filtros aplicados na tela.
+- **Recuperação de senha**: fluxo completo (`/esqueci-senha` → e-mail com link → `/redefinir-senha/{token}`), com e-mail em português. Localmente o envio fica só no log (`MAIL_MAILER=log`) — falta configurar um SMTP real para produção.
+- **Filtro "com foto / sem foto"** no Acervo interno e na Galeria pública.
+
+## O que foi feito (permissões, importação e limpeza)
+
+- **Importação com foto e descrição**: a planilha aceita agora as colunas "Descrição" e "Foto" (com um link direto pra imagem — o sistema baixa e salva durante a importação). Um link quebrado nunca impede a importação da linha, só deixa o isolado sem foto.
+- **Permissões por perfil de verdade**: a tabela em Configurações → Usuários agora persiste no banco (`perfil_permissoes`) e é aplicada de verdade nas rotas de Acervo, Importação e Relatórios via middleware `modulo`. O perfil Administrador tem acesso total fixo (não editável pela interface), para não travar o próprio acesso à tela de permissões.
+- Removido o badge "Dados mockados" do painel interno — resquício da fase de protótipo, os dados já são reais.
+
 ## O que falta
 
-- A tabela "Permissões por perfil" em Configurações → Usuários ainda é só ilustrativa (os checkboxes não persistem) — as permissões reais hoje são fixas no middleware, não editáveis pela interface.
-- Exportação de relatórios em Excel/PDF
-- Deploy em um banco de produção (PostgreSQL), se for o caso — hoje roda em SQLite local
+- **Envio de e-mail real**: hoje o link de recuperação de senha só é gravado em `storage/logs/laravel.log`. Precisa de um provedor SMTP configurado no `.env` (Gmail, SendGrid, institucional da UFMA, etc.) para funcionar em produção.
+- Sem limite de tentativas de login (rate limiting) — não há proteção contra força bruta na tela `/login`.
+- Deploy em um banco de produção (PostgreSQL), se for o caso — hoje roda em SQLite local.

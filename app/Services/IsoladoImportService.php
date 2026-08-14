@@ -6,6 +6,8 @@ use App\Models\Importacao;
 use App\Models\Isolado;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
@@ -25,6 +27,8 @@ class IsoladoImportService
         'local' => ['local', 'local de armazenamento'],
         'armazenamento' => ['armazenamento', 'tipo de armazenamento'],
         'autor' => ['autor', 'responsavel'],
+        'descricao' => ['descricao', 'descricao da especie'],
+        'imagem' => ['foto', 'imagem', 'link da foto', 'url da foto'],
     ];
 
     protected const OBRIGATORIOS = ['codigo', 'genero', 'especie'];
@@ -158,6 +162,8 @@ class IsoladoImportService
                     'codigo' => $dados['codigo'],
                     'genero' => $dados['genero'],
                     'especie' => $dados['especie'],
+                    'descricao' => $dados['descricao'] ?? null,
+                    'imagem' => $this->baixarImagem($dados['imagem'] ?? null),
                     'origem' => $dados['origem'] ?? null,
                     'meio_cultivo' => $dados['meio_cultivo'] ?? null,
                     'data' => $this->parseData($dados['data'] ?? null),
@@ -177,6 +183,45 @@ class IsoladoImportService
         $importacao->update(['importados' => $importados]);
 
         return $importacao;
+    }
+
+    /**
+     * Baixa a imagem de uma URL informada na planilha e salva no disco público.
+     * Falhas de download não interrompem a importação — o isolado é criado sem foto.
+     */
+    protected function baixarImagem(mixed $url): ?string
+    {
+        if (empty($url) || ! is_string($url) || ! preg_match('/^https?:\/\//i', $url)) {
+            return null;
+        }
+
+        try {
+            $resposta = Http::timeout(10)->get($url);
+
+            if (! $resposta->successful()) {
+                return null;
+            }
+
+            $conteudo = $resposta->body();
+            $tipo = getimagesizefromstring($conteudo)['mime'] ?? null;
+
+            if (! $tipo || ! str_starts_with($tipo, 'image/')) {
+                return null;
+            }
+
+            $extensao = match ($tipo) {
+                'image/png' => 'png',
+                'image/webp' => 'webp',
+                default => 'jpg',
+            };
+
+            $caminho = 'isolados/'.Str::uuid().'.'.$extensao;
+            Storage::disk('public')->put($caminho, $conteudo);
+
+            return $caminho;
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     protected function parseData(mixed $valor): ?string
@@ -226,6 +271,8 @@ class IsoladoImportService
             'local' => 'Local',
             'armazenamento' => 'Armazenamento',
             'autor' => 'Autor',
+            'descricao' => 'Descrição',
+            'imagem' => 'Foto (link)',
             default => $campo,
         };
     }

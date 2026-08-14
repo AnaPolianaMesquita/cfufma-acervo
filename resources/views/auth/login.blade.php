@@ -39,7 +39,7 @@
             <div>
                 <div class="flex items-center justify-between mb-1.5">
                     <label for="password" class="block text-sm font-medium text-ink">Senha</label>
-                    <a href="#" class="font-medium text-brand hover:underline text-xs">Esqueceu sua senha?</a>
+                    <a href="{{ route('password.request') }}" class="font-medium text-brand hover:underline text-xs">Esqueceu sua senha?</a>
                 </div>
                 <input
                     id="password" name="password" type="password" autocomplete="current-password" required
@@ -63,6 +63,10 @@
     <p class="mt-6 text-center text-sm text-muted">
         Ainda não tem uma conta?
         <a href="{{ route('register') }}" class="font-medium text-brand hover:underline">Criar conta</a>
+    </p>
+
+    <p class="mt-2 text-center text-sm text-muted">
+        <a href="{{ route('galeria.index') }}" class="font-medium text-brand hover:underline">Ver acervo público</a> sem fazer login
     </p>
 </div>
 

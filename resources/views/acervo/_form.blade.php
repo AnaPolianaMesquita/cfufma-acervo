@@ -1,3 +1,48 @@
+<div class="space-y-5">
+    <div>
+        <label class="block text-sm font-medium text-ink mb-1.5">Foto da espécie</label>
+
+        @if (!empty($isolado['imagem']))
+            <div class="flex items-center gap-4 mb-3">
+                <img src="{{ $isolado->imagemUrl() }}" alt="Foto de {{ $isolado['codigo'] }}" class="w-24 h-24 object-cover rounded-lg border border-slate-200">
+                <label class="inline-flex items-center gap-2 text-sm text-muted">
+                    <input type="checkbox" name="remover_imagem" value="1" class="rounded border-slate-300 text-brand focus:ring-brand">
+                    Remover foto atual
+                </label>
+            </div>
+        @endif
+
+        <input
+            id="imagem"
+            name="imagem"
+            type="file"
+            accept="image/*"
+            class="block w-full text-sm text-ink file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-brand-light file:text-brand hover:file:opacity-90 {{ $errors->first('imagem') ? 'border border-red-300 rounded-lg' : '' }}"
+        >
+
+        @if ($errors->first('imagem'))
+            <p class="mt-1.5 text-xs text-red-600">{{ $errors->first('imagem') }}</p>
+        @else
+            <p class="mt-1.5 text-xs text-muted">JPG, PNG ou WEBP, até 4MB.</p>
+        @endif
+    </div>
+
+    <div>
+        <label for="descricao" class="block text-sm font-medium text-ink mb-1.5">Descrição</label>
+        <textarea
+            id="descricao"
+            name="descricao"
+            rows="4"
+            placeholder="Descreva características da espécie para divulgação ao público (ciência cidadã)."
+            class="block w-full rounded-lg border px-3 py-2.5 text-sm text-ink placeholder-slate-400 shadow-sm transition-colors focus:outline-none focus:ring-1 {{ $errors->first('descricao') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 focus:border-brand focus:ring-brand' }}"
+        >{{ old('descricao', $isolado['descricao'] ?? '') }}</textarea>
+
+        @if ($errors->first('descricao'))
+            <p class="mt-1.5 text-xs text-red-600">{{ $errors->first('descricao') }}</p>
+        @endif
+    </div>
+</div>
+
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
     <x-input
         label="Código"

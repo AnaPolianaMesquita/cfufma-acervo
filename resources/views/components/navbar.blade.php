@@ -22,11 +22,6 @@
             <input type="text" placeholder="Buscar código ou espécie..." class="w-full text-xs pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors">
         </div>
 
-        <span class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-brand-light text-brand-dark border border-brand-light">
-            <span class="w-1.5 h-1.5 rounded-full bg-brand animate-pulse"></span>
-            Dados mockados
-        </span>
-
         <div class="h-6 w-px bg-slate-200 hidden sm:block"></div>
 
         <div x-data="{ open: false }" class="relative">

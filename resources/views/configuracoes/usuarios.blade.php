@@ -81,39 +81,58 @@
 
     <x-card>
         <h3 class="font-semibold text-ink mb-1">Permissões por perfil</h3>
-        <p class="text-xs text-muted mb-5">Somente ilustrativo nesta fase — sem persistência.</p>
+        <p class="text-xs text-muted mb-5">Controla quais módulos cada perfil pode acessar. O perfil Administrador tem acesso total fixo, para evitar que alguém perca o acesso à própria gestão de permissões.</p>
 
-        <div x-data="{
-            perms: {
-                'Administrador': { acervo: true, importar: true, relatorios: true, usuarios: true },
-                'Curador': { acervo: true, importar: true, relatorios: true, usuarios: false },
-                'Consulta': { acervo: true, importar: false, relatorios: true, usuarios: false },
-            }
-        }" class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="text-left text-muted border-b border-slate-100">
-                        <th class="py-3 pr-4 font-medium">Perfil</th>
-                        <th class="py-3 px-4 font-medium text-center">Acervo</th>
-                        <th class="py-3 px-4 font-medium text-center">Importação</th>
-                        <th class="py-3 px-4 font-medium text-center">Relatórios</th>
-                        <th class="py-3 px-4 font-medium text-center">Usuários</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <template x-for="(permissoes, perfil) in perms" :key="perfil">
-                        <tr class="border-t border-slate-50">
-                            <td class="py-3 pr-4 font-medium text-ink" x-text="perfil"></td>
-                            <template x-for="key in ['acervo', 'importar', 'relatorios', 'usuarios']" :key="key">
-                                <td class="py-3 px-4 text-center">
-                                    <input type="checkbox" x-model="permissoes[key]" class="rounded border-slate-300 text-brand focus:ring-brand">
-                                </td>
-                            </template>
+        <form method="POST" action="{{ route('configuracoes.permissoes.update') }}">
+            @csrf
+            @method('PUT')
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-muted border-b border-slate-100">
+                            <th class="py-3 pr-4 font-medium">Perfil</th>
+                            <th class="py-3 px-4 font-medium text-center">Acervo</th>
+                            <th class="py-3 px-4 font-medium text-center">Importação</th>
+                            <th class="py-3 px-4 font-medium text-center">Relatórios</th>
+                            <th class="py-3 px-4 font-medium text-center">Usuários</th>
                         </tr>
-                    </template>
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        @foreach (['Administrador', 'Curador', 'Consulta'] as $perfil)
+                            <tr class="border-t border-slate-50">
+                                <td class="py-3 pr-4 font-medium text-ink">{{ $perfil }}</td>
+                                @foreach (['acervo', 'importar', 'relatorios'] as $modulo)
+                                    <td class="py-3 px-4 text-center">
+                                        @if ($perfil === 'Administrador')
+                                            <input type="checkbox" checked disabled title="Administrador sempre tem acesso total" class="rounded border-slate-300 text-brand focus:ring-brand opacity-60">
+                                        @else
+                                            <input type="hidden" name="permissoes[{{ $perfil }}][{{ $modulo }}]" value="0">
+                                            <input
+                                                type="checkbox"
+                                                name="permissoes[{{ $perfil }}][{{ $modulo }}]"
+                                                value="1"
+                                                @checked(optional($permissoes[$perfil] ?? null)->$modulo)
+                                                class="rounded border-slate-300 text-brand focus:ring-brand"
+                                            >
+                                        @endif
+                                    </td>
+                                @endforeach
+                                <td class="py-3 px-4 text-center">
+                                    <span class="text-xs {{ $perfil === 'Administrador' ? 'text-brand-dark font-medium' : 'text-slate-400' }}" title="Gestão de usuários é sempre restrita ao Administrador">
+                                        {{ $perfil === 'Administrador' ? 'Sim' : 'Não' }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-end mt-5">
+                <x-button type="submit">Salvar permissões</x-button>
+            </div>
+        </form>
     </x-card>
 </div>
 

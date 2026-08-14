@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'perfil' => \App\Http\Middleware\EnsurePerfil::class,
+            'modulo' => \App\Http\Middleware\EnsureModulo::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

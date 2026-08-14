@@ -16,7 +16,7 @@
     </div>
 
     <x-card>
-        <form method="POST" action="{{ route('acervo.store') }}" class="space-y-6">
+        <form method="POST" action="{{ route('acervo.store') }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
             @include('acervo._form')

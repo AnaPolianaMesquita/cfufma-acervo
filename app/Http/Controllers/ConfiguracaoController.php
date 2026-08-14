@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PerfilPermissao;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -61,7 +62,38 @@ class ConfiguracaoController extends Controller
     {
         return view('configuracoes.usuarios', [
             'usuarios' => User::orderBy('name')->get(),
+            'permissoes' => PerfilPermissao::query()->get()->keyBy('perfil'),
         ]);
+    }
+
+    public function permissoesUpdate(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'permissoes' => ['required', 'array'],
+            'permissoes.*.acervo' => ['sometimes', 'boolean'],
+            'permissoes.*.importar' => ['sometimes', 'boolean'],
+            'permissoes.*.relatorios' => ['sometimes', 'boolean'],
+        ]);
+
+        foreach (['Curador', 'Consulta'] as $perfil) {
+            $dados = $validated['permissoes'][$perfil] ?? [];
+
+            PerfilPermissao::query()->updateOrCreate(['perfil' => $perfil], [
+                'acervo' => (bool) ($dados['acervo'] ?? false),
+                'importar' => (bool) ($dados['importar'] ?? false),
+                'relatorios' => (bool) ($dados['relatorios'] ?? false),
+            ]);
+        }
+
+        // O perfil Administrador tem acesso total sempre — não é editável pela interface,
+        // para evitar que alguém se tranque fora da própria tela de permissões.
+        PerfilPermissao::query()->updateOrCreate(['perfil' => 'Administrador'], [
+            'acervo' => true,
+            'importar' => true,
+            'relatorios' => true,
+        ]);
+
+        return redirect()->route('configuracoes.usuarios')->with('success', 'Permissões atualizadas com sucesso.');
     }
 
     public function usuariosStore(Request $request): RedirectResponse

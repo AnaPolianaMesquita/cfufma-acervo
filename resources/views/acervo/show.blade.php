@@ -29,6 +29,23 @@
     </div>
 
     <x-card>
+        <div class="flex flex-col sm:flex-row gap-6 mb-6">
+            @if ($isolado->imagemUrl())
+                <img src="{{ $isolado->imagemUrl() }}" alt="Foto de {{ $isolado->especieCompleta() }}" class="w-full sm:w-48 h-48 object-cover rounded-xl border border-slate-200">
+            @else
+                <div class="w-full sm:w-48 h-48 rounded-xl border border-dashed border-slate-200 flex items-center justify-center text-slate-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+                </div>
+            @endif
+
+            @if ($isolado['descricao'])
+                <div class="flex-1">
+                    <dt class="text-xs font-medium text-muted uppercase tracking-wide">Descrição</dt>
+                    <dd class="mt-1.5 text-sm text-ink leading-relaxed">{{ $isolado['descricao'] }}</dd>
+                </div>
+            @endif
+        </div>
+
         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
             @foreach ([
                 ['label' => 'Código', 'value' => $isolado['codigo']],

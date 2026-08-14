@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        ResetPassword::toMailUsing(function ($notifiable, string $token) {
+            $url = url(route('password.reset', [
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ], false));
+
+            return (new MailMessage)
+                ->subject('Redefinição de senha - Micoteca')
+                ->greeting('Olá, '.$notifiable->name.'!')
+                ->line('Recebemos uma solicitação para redefinir a senha da sua conta na Micoteca.')
+                ->action('Redefinir senha', $url)
+                ->line('Este link expira em '.config('auth.passwords.users.expire').' minutos.')
+                ->line('Se você não solicitou a redefinição, pode ignorar este e-mail.');
+        });
     }
 }

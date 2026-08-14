@@ -14,7 +14,7 @@ class ImportacaoController extends Controller
     public function index(): View
     {
         return view('importacao.index', [
-            'colunasEsperadas' => ['Código', 'Gênero', 'Espécie', 'Origem', 'Meio de cultivo', 'Data', 'Conservação', 'Local', 'Armazenamento', 'Autor'],
+            'colunasEsperadas' => ['Código', 'Gênero', 'Espécie', 'Origem', 'Meio de cultivo', 'Data', 'Conservação', 'Local', 'Armazenamento', 'Autor', 'Descrição', 'Foto (link)'],
         ]);
     }
 

@@ -10,6 +10,8 @@ class Isolado extends Model
         'codigo',
         'genero',
         'especie',
+        'imagem',
+        'descricao',
         'origem',
         'meio_cultivo',
         'data',
@@ -30,6 +32,11 @@ class Isolado extends Model
     public function especieCompleta(): string
     {
         return trim($this->genero.' '.$this->especie);
+    }
+
+    public function imagemUrl(): ?string
+    {
+        return $this->imagem ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->imagem) : null;
     }
 
     public static function valoresDistintos(string $coluna): \Illuminate\Support\Collection

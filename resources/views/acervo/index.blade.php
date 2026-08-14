@@ -22,7 +22,7 @@
 
     <!-- Filtros -->
     <x-card>
-        <form method="GET" action="{{ route('acervo.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+        <form method="GET" action="{{ route('acervo.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
             <div class="lg:col-span-2">
                 <label class="block text-sm font-medium text-ink mb-1.5">Pesquisar</label>
                 <div class="relative">
@@ -46,9 +46,14 @@
                 @endforeach
             </x-select>
 
+            <x-select name="foto" label="Foto" :selected="$filtros['foto']" placeholder="Todos">
+                <option value="com" @selected($filtros['foto'] === 'com')>Com foto</option>
+                <option value="sem" @selected($filtros['foto'] === 'sem')>Sem foto</option>
+            </x-select>
+
             <div class="flex gap-2">
                 <x-button type="submit" variant="secondary" class="flex-1">Filtrar</x-button>
-                @if ($filtros['busca'] || $filtros['genero'] || $filtros['conservacao'])
+                @if ($filtros['busca'] || $filtros['genero'] || $filtros['conservacao'] || $filtros['foto'])
                     <x-button :href="route('acervo.index')" variant="ghost">Limpar</x-button>
                 @endif
             </div>

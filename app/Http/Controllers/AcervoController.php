@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Isolado;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class AcervoController extends Controller
@@ -19,6 +20,7 @@ class AcervoController extends Controller
         $busca = trim((string) $request->query('busca', ''));
         $genero = $request->query('genero', '');
         $conservacao = $request->query('conservacao', '');
+        $foto = in_array($request->query('foto'), ['com', 'sem'], true) ? $request->query('foto') : '';
         $ordenar = in_array($request->query('ordenar'), self::COLUNAS_ORDENAVEIS, true) ? $request->query('ordenar') : 'codigo';
         $direcao = $request->query('direcao', 'asc') === 'desc' ? 'desc' : 'asc';
         $porPagina = (int) $request->query('por_pagina', 10);
@@ -33,13 +35,15 @@ class AcervoController extends Controller
             }))
             ->when($genero !== '', fn ($q) => $q->where('genero', $genero))
             ->when($conservacao !== '', fn ($q) => $q->where('conservacao', $conservacao))
+            ->when($foto === 'com', fn ($q) => $q->whereNotNull('imagem')->where('imagem', '!=', ''))
+            ->when($foto === 'sem', fn ($q) => $q->where(fn ($q) => $q->whereNull('imagem')->orWhere('imagem', '')))
             ->orderBy($ordenar, $direcao)
             ->paginate($porPagina)
             ->withQueryString();
 
         return view('acervo.index', [
             'itens' => collect($paginador->items()),
-            'filtros' => compact('busca', 'genero', 'conservacao', 'ordenar', 'direcao', 'porPagina'),
+            'filtros' => compact('busca', 'genero', 'conservacao', 'foto', 'ordenar', 'direcao', 'porPagina'),
             'generos' => Isolado::valoresDistintos('genero'),
             'conservacoes' => Isolado::valoresDistintos('conservacao'),
             'meta' => [
@@ -70,6 +74,8 @@ class AcervoController extends Controller
             'codigo' => ['required', 'string', 'max:50', 'unique:isolados,codigo'],
             'genero' => ['required', 'string', 'max:100'],
             'especie' => ['required', 'string', 'max:100'],
+            'imagem' => ['nullable', 'image', 'max:4096'],
+            'descricao' => ['nullable', 'string', 'max:2000'],
             'origem' => ['nullable', 'string', 'max:150'],
             'meio_cultivo' => ['nullable', 'string', 'max:150'],
             'data' => ['nullable', 'date'],
@@ -78,6 +84,10 @@ class AcervoController extends Controller
             'armazenamento' => ['nullable', 'string', 'max:150'],
             'autor' => ['required', 'string', 'max:150'],
         ]);
+
+        if ($request->hasFile('imagem')) {
+            $dados['imagem'] = $request->file('imagem')->store('isolados', 'public');
+        }
 
         Isolado::create($dados);
 
@@ -110,6 +120,9 @@ class AcervoController extends Controller
             'codigo' => ['required', 'string', 'max:50', 'unique:isolados,codigo,'.$isolado->id],
             'genero' => ['required', 'string', 'max:100'],
             'especie' => ['required', 'string', 'max:100'],
+            'imagem' => ['nullable', 'image', 'max:4096'],
+            'remover_imagem' => ['nullable', 'boolean'],
+            'descricao' => ['nullable', 'string', 'max:2000'],
             'origem' => ['nullable', 'string', 'max:150'],
             'meio_cultivo' => ['nullable', 'string', 'max:150'],
             'data' => ['nullable', 'date'],
@@ -119,6 +132,20 @@ class AcervoController extends Controller
             'autor' => ['required', 'string', 'max:150'],
         ]);
 
+        if ($request->hasFile('imagem')) {
+            if ($isolado->imagem) {
+                Storage::disk('public')->delete($isolado->imagem);
+            }
+            $dados['imagem'] = $request->file('imagem')->store('isolados', 'public');
+        } elseif ($request->boolean('remover_imagem')) {
+            if ($isolado->imagem) {
+                Storage::disk('public')->delete($isolado->imagem);
+            }
+            $dados['imagem'] = null;
+        }
+
+        unset($dados['remover_imagem']);
+
         $isolado->update($dados);
 
         return redirect()->route('acervo.show', $id)->with('success', 'Isolado atualizado com sucesso.');
@@ -126,7 +153,13 @@ class AcervoController extends Controller
 
     public function destroy(int $id): RedirectResponse
     {
-        Isolado::findOrFail($id)->delete();
+        $isolado = Isolado::findOrFail($id);
+
+        if ($isolado->imagem) {
+            Storage::disk('public')->delete($isolado->imagem);
+        }
+
+        $isolado->delete();
 
         return redirect()->route('acervo.index')->with('success', 'Isolado excluído com sucesso.');
     }
@@ -137,6 +170,9 @@ class AcervoController extends Controller
             'ids' => ['required', 'array', 'min:1'],
             'ids.*' => ['integer'],
         ])['ids'];
+
+        $imagens = Isolado::whereIn('id', $ids)->whereNotNull('imagem')->pluck('imagem');
+        Storage::disk('public')->delete($imagens->all());
 
         $total = Isolado::whereIn('id', $ids)->delete();
 
