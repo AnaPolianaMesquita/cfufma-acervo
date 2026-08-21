@@ -24,11 +24,15 @@ class RegisterController extends Controller
             'senha' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
+        $perfil = str_ends_with(strtolower($validated['email']), '@discente.ufma.br')
+            ? 'Curador'
+            : 'Consulta';
+
         $user = User::create([
             'name' => $validated['nome'],
             'email' => $validated['email'],
             'password' => $validated['senha'],
-            'perfil' => 'Consulta',
+            'perfil' => $perfil,
             'ativo' => true,
             'ultimo_acesso' => now(),
         ]);
