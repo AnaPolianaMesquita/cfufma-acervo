@@ -86,7 +86,7 @@ class AcervoController extends Controller
         ]);
 
         if ($request->hasFile('imagem')) {
-            $dados['imagem'] = $request->file('imagem')->store('isolados', 'public');
+            $dados['imagem'] = $request->file('imagem')->store('isolados', config('filesystems.default'));
         }
 
         Isolado::create($dados);
@@ -134,12 +134,12 @@ class AcervoController extends Controller
 
         if ($request->hasFile('imagem')) {
             if ($isolado->imagem) {
-                Storage::disk('public')->delete($isolado->imagem);
+                Storage::disk(config('filesystems.default'))->delete($isolado->imagem);
             }
-            $dados['imagem'] = $request->file('imagem')->store('isolados', 'public');
+            $dados['imagem'] = $request->file('imagem')->store('isolados', config('filesystems.default'));
         } elseif ($request->boolean('remover_imagem')) {
             if ($isolado->imagem) {
-                Storage::disk('public')->delete($isolado->imagem);
+                Storage::disk(config('filesystems.default'))->delete($isolado->imagem);
             }
             $dados['imagem'] = null;
         }
@@ -156,7 +156,7 @@ class AcervoController extends Controller
         $isolado = Isolado::findOrFail($id);
 
         if ($isolado->imagem) {
-            Storage::disk('public')->delete($isolado->imagem);
+            Storage::disk(config('filesystems.default'))->delete($isolado->imagem);
         }
 
         $isolado->delete();
@@ -172,7 +172,7 @@ class AcervoController extends Controller
         ])['ids'];
 
         $imagens = Isolado::whereIn('id', $ids)->whereNotNull('imagem')->pluck('imagem');
-        Storage::disk('public')->delete($imagens->all());
+        Storage::disk(config('filesystems.default'))->delete($imagens->all());
 
         $total = Isolado::whereIn('id', $ids)->delete();
 

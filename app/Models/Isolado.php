@@ -36,7 +36,7 @@ class Isolado extends Model
 
     public function imagemUrl(): ?string
     {
-        return $this->imagem ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->imagem) : null;
+        return $this->imagem ? \Illuminate\Support\Facades\Storage::disk(config('filesystems.default'))->url($this->imagem) : null;
     }
 
     public static function valoresDistintos(string $coluna): \Illuminate\Support\Collection
