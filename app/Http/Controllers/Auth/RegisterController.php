@@ -24,7 +24,8 @@ class RegisterController extends Controller
             'senha' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $perfil = str_ends_with(strtolower($validated['email']), '@discente.ufma.br')
+        $email = strtolower($validated['email']);
+        $perfil = (str_ends_with($email, '@ufma.br') || str_ends_with($email, '.ufma.br'))
             ? 'Curador'
             : 'Consulta';
 
