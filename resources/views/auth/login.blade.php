@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Entrar - Micoteca')
+@section('title', 'Entrar - MicoNIBA')
 
 @section('content')
 

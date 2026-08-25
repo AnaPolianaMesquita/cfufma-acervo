@@ -135,7 +135,7 @@ class MockData
         return collect([
             [
                 'id' => 5,
-                'arquivo' => 'acervo_micoteca_agosto_2026.xlsx',
+                'arquivo' => 'acervo_miconiba_agosto_2026.xlsx',
                 'tamanho' => '284 KB',
                 'usuario' => 'Ana Sousa',
                 'data' => '2026-08-10 14:32',

@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', $isolado->especieCompleta().' - Galeria da Micoteca')
+@section('title', $isolado->especieCompleta().' - Galeria da MicoNIBA')
 
 @section('content')
 

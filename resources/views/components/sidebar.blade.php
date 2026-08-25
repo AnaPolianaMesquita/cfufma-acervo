@@ -60,7 +60,7 @@
                     M
                 </div>
                 <div>
-                    <span class="text-base font-bold text-ink block leading-tight">Micoteca</span>
+                    <span class="text-base font-bold text-ink block leading-tight">MicoNIBA</span>
                     <span class="text-xs text-muted block">Gestão de Fungos</span>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $isolado['codigo'].' - Micoteca')
+@section('title', $isolado['codigo'].' - MicoNIBA')
 @section('page-title', 'Detalhes do isolado')
 
 @section('content')

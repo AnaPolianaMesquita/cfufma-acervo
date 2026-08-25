@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Recuperar senha - Micoteca')
+@section('title', 'Recuperar senha - MicoNIBA')
 
 @section('content')
 

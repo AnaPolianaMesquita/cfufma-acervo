@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Micoteca - Acervo público')</title>
+    <title>@yield('title', 'MicoNIBA - Acervo público')</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -22,19 +22,23 @@
                 </svg>
             </div>
             <div>
-                <span class="text-xl font-bold text-ink block leading-tight">Micoteca</span>
+                <span class="text-xl font-bold text-ink block leading-tight">MicoNIBA</span>
                 <span class="text-sm text-muted block">Acervo público de fungos</span>
             </div>
         </a>
 
-        @auth
-            <x-button variant="secondary" :href="route('dashboard')">Painel</x-button>
-        @else
-            <div class="flex items-center gap-3">
-                <x-button variant="ghost" :href="route('login')">Entrar</x-button>
-                <x-button :href="route('register')">Criar conta</x-button>
-            </div>
-        @endauth
+        <div class="flex items-center gap-4 sm:gap-6">
+            <a href="{{ route('quem-somos') }}" class="text-sm font-medium text-muted hover:text-brand transition-colors">Quem somos</a>
+
+            @auth
+                <x-button variant="secondary" :href="route('dashboard')">Painel</x-button>
+            @else
+                <div class="flex items-center gap-3">
+                    <x-button variant="ghost" :href="route('login')">Entrar</x-button>
+                    <x-button :href="route('register')">Criar conta</x-button>
+                </div>
+            @endauth
+        </div>
     </header>
 
     <main class="flex-1 p-4 sm:p-8">
@@ -52,15 +56,18 @@
                     </svg>
                 </div>
                 <div>
-                    <span class="text-sm font-semibold text-ink block">Micoteca</span>
+                    <span class="text-sm font-semibold text-ink block">MicoNIBA</span>
                     <span class="text-xs text-muted block">Acervo mantido pela equipe de curadoria</span>
                 </div>
             </div>
 
-            <p class="text-sm text-muted">
-                Quer contribuir com novos registros?
-                <a href="{{ route('register') }}" class="text-brand font-medium hover:underline">Crie uma conta</a>.
-            </p>
+            <div class="flex items-center gap-4 text-sm text-muted">
+                <a href="{{ route('quem-somos') }}" class="text-brand font-medium hover:underline">Quem somos</a>
+                <p>
+                    Quer contribuir com novos registros?
+                    <a href="{{ route('register') }}" class="text-brand font-medium hover:underline">Crie uma conta</a>.
+                </p>
+            </div>
         </div>
     </footer>
 </body>

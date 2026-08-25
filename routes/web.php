@@ -15,6 +15,8 @@ use App\Http\Controllers\RelatorioController;
 
 Route::get('/', fn () => auth()->check() ? redirect()->route('dashboard') : redirect()->route('galeria.index'));
 
+Route::view('/quem-somos', 'quem-somos')->name('quem-somos');
+
 // Galeria pública (sem login)
 Route::prefix('galeria')->name('galeria.')->group(function () {
     Route::get('/', [GaleriaController::class, 'index'])->name('index');

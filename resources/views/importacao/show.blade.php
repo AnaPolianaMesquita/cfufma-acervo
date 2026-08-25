@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Detalhes da Importação - Micoteca')
+@section('title', 'Detalhes da Importação - MicoNIBA')
 @section('page-title', 'Detalhes da importação')
 
 @section('content')

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Importar Excel - Micoteca')
+@section('title', 'Importar Excel - MicoNIBA')
 @section('page-title', 'Importação de Excel')
 
 @section('content')

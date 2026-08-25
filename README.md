@@ -1,4 +1,4 @@
-# Micoteca — Sistema de Gerenciamento de Acervo de Fungos (CFUFMA)
+# MicoNIBA — Sistema de Gerenciamento de Acervo de Fungos (CFUFMA)
 
 Sistema web para gestão do acervo micológico da coleção de fungos da UFMA: cadastro de isolados, importação de planilhas Excel, relatórios e controle de usuários.
 

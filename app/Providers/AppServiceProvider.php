@@ -28,9 +28,9 @@ class AppServiceProvider extends ServiceProvider
             ], false));
 
             return (new MailMessage)
-                ->subject('Redefinição de senha - Micoteca')
+                ->subject('Redefinição de senha - MicoNIBA')
                 ->greeting('Olá, '.$notifiable->name.'!')
-                ->line('Recebemos uma solicitação para redefinir a senha da sua conta na Micoteca.')
+                ->line('Recebemos uma solicitação para redefinir a senha da sua conta na MicoNIBA.')
                 ->action('Redefinir senha', $url)
                 ->line('Este link expira em '.config('auth.passwords.users.expire').' minutos.')
                 ->line('Se você não solicitou a redefinição, pode ignorar este e-mail.');

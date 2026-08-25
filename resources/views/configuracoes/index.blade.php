@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Configurações - Micoteca')
+@section('title', 'Configurações - MicoNIBA')
 @section('page-title', 'Configurações')
 
 @section('content')

@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Galeria - Acervo público da Micoteca')
+@section('title', 'Galeria - Acervo público da MicoNIBA')
 
 @section('content')
 

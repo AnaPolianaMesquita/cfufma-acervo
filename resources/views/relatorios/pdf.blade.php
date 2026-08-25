@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Relatório do acervo - Micoteca</title>
+    <title>Relatório do acervo - MicoNIBA</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: sans-serif; color: #1e293b; font-size: 11px; }
@@ -56,6 +56,6 @@
         </tbody>
     </table>
 
-    <p class="rodape">Micoteca &middot; Gestão de Acervo Micológico</p>
+    <p class="rodape">MicoNIBA &middot; Gestão de Acervo Micológico</p>
 </body>
 </html>
