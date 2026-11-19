@@ -216,7 +216,7 @@ class IsoladoImportService
             };
 
             $caminho = 'isolados/'.Str::uuid().'.'.$extensao;
-            Storage::disk('public')->put($caminho, $conteudo);
+            Storage::disk(config('filesystems.default'))->put($caminho, $conteudo);
 
             return $caminho;
         } catch (Throwable) {
