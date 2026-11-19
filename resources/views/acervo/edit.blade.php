@@ -16,7 +16,7 @@
     </div>
 
     <x-card>
-        <form method="POST" action="{{ route('acervo.update', $isolado['id']) }}" enctype="multipart/form-data" class="space-y-6">
+        <form method="POST" action="{{ route('acervo.update', $isolado['id']) }}" enctype="multipart/form-data" class="space-y-6" onsubmit="this.querySelector('[type=submit]').disabled = true; this.querySelector('[type=submit]').textContent = 'Salvando...';">
             @csrf
             @method('PUT')
 
